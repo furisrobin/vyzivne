@@ -3,123 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generátor Potvrzení o Výživném</title>
+    <title>Roční přehled výživného</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; font-size: 24px; margin-bottom: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 22px; margin-bottom: 20px; }
         label { display: block; margin-top: 12px; font-weight: bold; color: #555; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 18px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: background 0.2s; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 18px; cursor: pointer; margin-top: 20px; font-weight: bold; }
         button:hover { background: #219653; }
 
-        /* Styl pro samotnou A4, která se schová a vygeneruje do PDF */
-        #a4-template { display: none; padding: 50px; font-family: 'Times New Roman', serif; line-height: 1.6; color: #000; }
-        .pdf-title { text-align: center; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 40px; font-size: 22px; font-weight: bold; }
-        .section { margin-bottom: 25px; }
-        .signature-area { margin-top: 80px; display: flex; justify-content: space-between; }
-        .sig-box { width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px; font-size: 14px; }
+        /* STYL PRO PAPÍR A4 */
+        #a4-template { display: none; padding: 30px; font-family: 'Arial', sans-serif; color: #000; font-size: 13px; line-height: 1.4; }
+        .pdf-header { text-align: center; margin-bottom: 25px; }
+        .pdf-header h2 { text-transform: uppercase; font-size: 18px; margin: 0 0 10px 0; letter-spacing: 0.5px; }
+        .parties { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
+        .party-box { width: 48%; }
+        
+        /* Styl tabulky */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 8px 6px; text-align: left; vertical-align: middle; }
+        th { background-color: #f2f2f2; font-weight: bold; font-size: 12px; text-transform: uppercase; }
+        
+        /* Pomocné linky pro ruční psaní v tabulce */
+        .line-fill { border-bottom: 1px dotted #999; display: inline-block; width: 100%; height: 18px; }
+        .signature-line { border-bottom: 1px dotted #666; display: inline-block; width: 100%; height: 25px; }
+        
+        .footer-text { margin-top: 20px; font-size: 11px; color: #444; font-style: italic; text-align: justify; }
     </style>
 </head>
 <body>
 
-<div class="container no-print">
-    <h1>Potvrzení o zaplacení výživného</h1>
+<div class="container">
+    <h1>Roční přehled výživného</h1>
     
-    <label for="mesic">Výživné za měsíc / rok:</label>
-    <input type="text" id="mesic" placeholder="Např. Květen 2026">
+    <label for="rok">Pro rok:</label>
+    <input type="number" id="rok" value="2026">
 
-    <label for="vyzivne">Základní výživné (Kč):</label>
+    <label for="vyzivne">Měsíční výživné (Kč):</label>
     <input type="number" id="vyzivne" value="5000">
 
-    <label for="navic">Peníze mimo výživné / navíc (Kč):</label>
-    <input type="number" id="navic" value="0">
-
-    <label for="duvod">Účel peněz navíc (nepovinné):</label>
-    <textarea id="duvod" placeholder="Např. nové zimní boty, škola v přírodě..."></textarea>
-
-    <label for="datum">Datum předání / podpisu:</label>
-    <input type="date" id="datum">
-
-    <button onclick="generovatPDF()">Stáhnout hotovou A4 (PDF)</button>
+    <button onclick="generovatPDF()">Stáhnout roční A4 (PDF)</button>
 </div>
 
 <div id="a4-template">
-    <div class="pdf-title">Potvrzení o převzetí finančních prostředků</div>
+    <div class="pdf-header">
+        <h2>Přehled o zaplacení výživného na rok <span id="pdf-rok"></span></h2>
+        <p>Tento dokument slouží jako roční přehled a potvrzení o převzetí pravidelného výživného a mimořádných finančních částek.</p>
+    </div>
     
-    <div class="section">
-        <p>Já, níže podepsaná <strong>[Zde doplňte jméno matky]</strong>, nar. [Datum narození], bytem [Adresa matky],<br>
-        tímto potvrzuji, že jsem od otce <strong>[Zde doplňte jméno otce]</strong>, nar. [Datum narození], převzala v hotovosti následující finanční částky:</p>
-    </div>
-
-    <div class="section" style="background: #f9f9f9; padding: 15px; border: 1px solid #ddd;">
-        <p><strong>1. Pravidelné výživné:</strong></p>
-        <ul>
-            <li>Za měsíc/rok: <span id="pdf-mesic"></span></li>
-            <li>Částka: <span id="pdf-vyzivne"></span> Kč</li>
-        </ul>
-        
-        <p><strong>2. Mimořádné finanční prostředky (nad rámec stanoveného výživného):</strong></p>
-        <ul>
-            <li>Částka: <span id="pdf-navic"></span> Kč</li>
-            <li>Účel/Důvod: <span id="pdf-duvod">---</span></li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <p>Celková převzatá částka činí: <strong id="pdf-celkem"></strong> Kč.</p>
-        <p>Svým podpisem stvrzuji, že uvedené finanční částky jsem převzala, data odpovídají skutečnosti a vůči otci nemám za uvedený měsíc v tomto rozsahu žádné další pohledávky.</p>
-    </div>
-
-    <div class="section">
-        <p>V .................................... dne: <span id="pdf-datum"></span></p>
-    </div>
-
-    <div class="signature-area">
-        <div class="sig-box" style="border: none;"></div> <div class="sig-box">
-            Podpis matky (příjemkyně)
+    <div class="parties">
+        <div class="party-box">
+            <strong>Plátce (otec):</strong><br>
+            Jméno: [Doplň jméno otce]<br>
+            Nar.: [Datum narození]<br>
+            Bytem: [Adresa]
         </div>
+        <div class="party-box">
+            <strong>Příjemce (matka):</strong><br>
+            Jméno: [Doplň jméno matky]<br>
+            Nar.: [Datum narození]<br>
+            Bytem: [Adresa]
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 12%;">Měsíc</th>
+                <th style="width: 15%;">Výživné</th>
+                <th style="width: 13%;">Datum převzetí</th>
+                <th style="width: 16%;">Peníze navíc (Kč)</th>
+                <th style="width: 24%;">Účel / Důvod peněz navíc</th>
+                <th style="width: 20%;">Podpis matky</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <div class="footer-text">
+        Prohlášení matky: Svým podpisem v příslušném řádku měsíce stvrzuji, že jsem od otce převzala uvedenou částku pravidelného výživného a případné finanční prostředky nad rámec výživného uvedené v daném řádku. Zároveň potvrzuji, že k datu podpisu vůči otci neeviduji žádné pohledávky na výživném za toto období.
     </div>
 </div>
 
 <script>
-    // Nastavení dnešního data do formuláře při načtení
-    document.getElementById('datum').valueAsDate = new Date();
-    
-    // Automatické předvyplnění aktuálního měsíce a roku
-    const options = { month: 'long', year: 'numeric' };
-    document.getElementById('mesic').value = new Intl.DateTimeFormat('cs-CZ', options).format(new Date());
+    // Automatické nastavení aktuálního roku
+    document.getElementById('rok').value = new Date().getFullYear();
+
+    const mesice = [
+        "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", 
+        "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"
+    ];
 
     function generovatPDF() {
-        // Načtení hodnot z formuláře
-        const mesic = document.getElementById('mesic').value;
+        const rok = document.getElementById('rok').value;
         const vyzivne = parseFloat(document.getElementById('vyzivne').value) || 0;
-        const navic = parseFloat(document.getElementById('navic').value) || 0;
-        const duvod = document.getElementById('duvod').value || "Nebyly poskytnuty žádné mimořádné finance.";
-        const datum = new Date(document.getElementById('datum').value).toLocaleDateString('cs-CZ');
+        
+        document.getElementById('pdf-rok').innerText = rok;
+        
+        // Vyčištění a vygenerování řádků tabulky
+        const tbody = document.querySelector('#a4-template tbody');
+        tbody.innerHTML = '';
+        
+        mesice.forEach(mesic => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${mesic}</strong></td>
+                <td>${vyzivne.toLocaleString('cs-CZ')} Kč</td>
+                <td><span class="line-fill"></span></td>
+                <td><span class="line-fill"></span></td>
+                <td><span class="line-fill"></span></td>
+                <td><span class="signature-line"></span></td>
+            `;
+            tbody.appendChild(row);
+        });
 
-        // Dosazení hodnot do skryté A4 šablony
-        document.getElementById('pdf-mesic').innerText = mesic;
-        document.getElementById('pdf-vyzivne').innerText = vyzivne.toLocaleString('cs-CZ');
-        document.getElementById('pdf-navic').innerText = navic.toLocaleString('cs-CZ');
-        document.getElementById('pdf-duvod').innerText = duvod;
-        document.getElementById('pdf-celkem').innerText = (vyzivne + navic).toLocaleString('cs-CZ');
-        document.getElementById('pdf-datum').innerText = datum;
-
-        // Element s šablonou
         const element = document.getElementById('a4-template');
         
-        // Nastavení pro html2pdf (vynucení formátu A4 a okrajů)
         const opt = {
-            margin:       15,
-            filename:     `Potvrzeni_vyzivne_${mesic.replace(' ', '_')}.pdf`,
+            margin:       10,
+            filename:     `Prehled_vyzivne_${rok}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2 },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Dočasně zobrazit šablonu pro vygenerování, pak zase schovat
+        // Zobrazit, vygenerovat PDF, schovat
         element.style.display = 'block';
         html2pdf().set(opt).from(element).save().then(() => {
             element.style.display = 'none';
